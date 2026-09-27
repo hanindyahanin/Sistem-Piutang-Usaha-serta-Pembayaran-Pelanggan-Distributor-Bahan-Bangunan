@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistem Piutang Usaha Distributor Bahan Bangunan</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-box">
+          <div class="brand-mark">CK</div>
+          <div>
+            <h1>CV Kokoh</h1>
+            <small>DISTRIBUTOR BAHAN BANGUNAN</small>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-target="dashboard-panel">Dashboard</button>
+          <button class="nav-item" data-target="customer-panel">Pelanggan</button>
+          <button class="nav-item" data-target="invoice-panel">Invoice</button>
+          <button class="nav-item" data-target="payment-panel">Pembayaran</button>
+          <button class="nav-item" data-target="aging-panel">Laporan</button>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Sistem akuntansi</p>
+          </div>
+          <div class="topbar-actions"></div>
+        </header>
+
+        <section id="dashboard-panel" class="panel page-section active dashboard-shell">
+          <div class="dashboard-banner">
+            <div>
+              <p class="eyebrow">Kamis, 24 September 2026</p>
+              <h3>Ringkasan piutang</h3>
+            </div>
+            <div class="dashboard-banner-actions">
+              <button type="button" id="downloadReceivablesLedgerBtn" class="secondary-btn small-btn">Unduh laporan</button>
+              <button type="button" id="quickAddInvoiceBtn" class="primary-btn small-btn">+ Invoice baru</button>
+            </div>
+          </div>
+          <div id="dashboardStats" class="stats-grid"></div>
+
+          <div class="dashboard-grid">
+            <div class="mini-panel">
+              <div class="mini-panel-header">
+                <h4>Arus piutang</h4>
+                <span>6 bulan terakhir</span>
+              </div>
+              <div id="cashflowChart" class="cashflow-chart"></div>
+              <div class="legend-row">
+                <span><i class="dot invoice-dot"></i> Invoice diterbitkan</span>
+                <span><i class="dot paid-dot"></i> Pembayaran diterima</span>
+              </div>
+            </div>
+
+            <div class="mini-panel">
+              <div class="mini-panel-header">
+                <h4>Aging schedule</h4>
+                <button type="button" class="link-btn" data-target="aging-panel">Lihat detail</button>
+              </div>
+              <div id="dashboardAgingList" class="aging-list"></div>
+            </div>
+          </div>
+
+          <div id="companyDebtPanel" class="company-debt-panel hidden"></div>
+
+          <div class="attention-panel">
+            <div class="mini-panel-header">
+              <h4>Perlu perhatian</h4>
+              <button type="button" class="link-btn" data-target="aging-panel">Lihat semua</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Invoice</th>
+                    <th>Pelanggan</th>
+                    <th>Jatuh tempo</th>
+                    <th>Total</th>
+                    <th>Sisa</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="attentionTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="customer-panel" class="panel page-section hidden">
+          <div class="panel-header">
+            <h3>Data Pelanggan</h3>
+            <button id="addCustomerBtn" class="primary-btn" type="button">+ Tambah Pelanggan</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nama</th>
+                  <th>Alamat</th>
+                  <th>Telepon</th>
+                  <th>Limit Kredit</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="customerTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="invoice-panel" class="panel page-section hidden">
+          <div class="panel-header">
+            <h3>Penjualan Kredit / Invoice</h3>
+            <button id="addInvoiceBtn" class="primary-btn" type="button">+ Buat Invoice</button>
+          </div>
+
+          <div class="invoice-filter-bar">
+            <label class="field inline-field">
+              <span>Nama Perusahaan</span>
+              <select id="invoiceCustomerFilter">
+                <option value="all">Semua perusahaan</option>
+              </select>
+            </label>
+            <label class="field inline-field">
+              <span>Tanggal</span>
+              <input id="invoiceDateFilter" type="date" />
+            </label>
+            <button type="button" id="clearInvoiceFilters" class="secondary-btn small-btn">Reset</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice</th>
+                  <th>Invoice ke</th>
+                  <th>Pelanggan</th>
+                  <th>Tanggal</th>
+                  <th>Jatuh Tempo</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="invoiceTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="payment-panel" class="panel page-section hidden">
+          <div class="payment-layout single-column-payment">
+            <div class="payment-accounts-panel full-width-payment-panel">
+              <div class="panel-header">
+                <h3>Rincian Piutang Perusahaan</h3>
+              </div>
+              <div id="paymentDebtList" class="payment-debt-list"></div>
+
+              <div class="payment-history-box payment-history-horizontal">
+                <div class="panel-header compact-panel-header">
+                  <h3>Riwayat Pembayaran</h3>
+                </div>
+                <div id="paymentSummary" class="payment-summary"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="aging-panel" class="panel page-section hidden aging-report-panel">
+          <div class="analysis-header">
+            <div>
+              <p class="analysis-label">ANALISIS UMUR PIUTANG</p>
+              <h3>Dashboard Aging</h3>
+            </div>
+            <button class="secondary-btn" type="button" data-target="invoice-panel">Lihat invoice</button>
+          </div>
+
+          <div id="agingSummaryCards" class="aging-summary-cards"></div>
+
+          <div class="aging-table-panel">
+            <div class="panel-header compact-header">
+              <div>
+                <p class="section-subtitle">Rincian aging</p>
+                <h4>Invoice belum lunas berdasarkan kelompok umur</h4>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Kelompok umur</th>
+                    <th>Invoice</th>
+                    <th>Pelanggan</th>
+                    <th>Sisa piutang</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="agingTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="paymentModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <span class="section-tag">Pembayaran</span>
+            <h3>Catat Pembayaran</h3>
+          </div>
+          <button type="button" class="icon-btn close-modal" data-close="paymentModal">×</button>
+        </div>
+
+        <form id="paymentModalForm" class="modal-form">
+          <div class="form-grid">
+            <label class="field full">
+              <span>Invoice</span>
+              <select id="paymentModalInvoiceSelect" required></select>
+            </label>
+            <label class="field">
+              <span>Tanggal Pembayaran</span>
+              <input type="date" id="paymentModalDate" required />
+            </label>
+            <label class="field">
+              <span>Metode Pembayaran</span>
+              <select id="paymentModalMethod">
+                <option value="Rekening Bank">Rekening Bank</option>
+                <option value="Tunai">Tunai</option>
+                <option value="Cek/Giro">Cek/Giro</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Jumlah Bayar</span>
+              <input type="number" id="paymentModalAmount" min="0" step="1000" required />
+            </label>
+            <label class="field">
+              <span>Sisa Piutang</span>
+              <input type="text" id="paymentModalRemainingDisplay" readonly value="Rp 0" />
+            </label>
+            <label class="field">
+              <span>Diskon Potensial</span>
+              <input type="text" id="paymentModalDiscountDisplay" readonly value="Rp 0" />
+            </label>
+            <label class="field full">
+              <span>Nominal yang perlu dibayar</span>
+              <input type="text" id="paymentModalPolicyPaymentDisplay" readonly value="Rp 0" />
+            </label>
+          </div>
+
+          <div class="discount-policy-box" role="note">
+            <strong>Potensi diskon 2%</strong>
+            <span>Jika pembayaran dilakukan dalam 10 hari, pelanggan berhak memperoleh diskon 2% dari sisa tagihan.</span>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn close-modal" data-close="paymentModal">Batal</button>
+            <button type="submit" class="primary-btn">Simpan Pembayaran</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="detailModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-card detail-card">
+        <div class="modal-header">
+          <div>
+            <span class="section-tag">Detail</span>
+            <h3 id="detailTitle">Detail</h3>
+          </div>
+          <button type="button" class="icon-btn close-modal" data-close="detailModal">×</button>
+        </div>
+        <div id="detailContent" class="detail-content"></div>
+      </div>
+    </div>
+
+    <div id="customerModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <span class="section-tag">Pelanggan</span>
+            <h3 id="customerModalTitle">Tambah Pelanggan Baru</h3>
+          </div>
+          <button type="button" class="icon-btn close-modal" data-close="customerModal">×</button>
+        </div>
+
+        <form id="customerForm" class="modal-form">
+          <input type="hidden" id="customerEditId" name="customerEditId" />
+          <div class="form-grid">
+            <label class="field">
+              <span>ID Pelanggan</span>
+              <input id="customerId" name="customerId" type="text" placeholder="C-005" />
+            </label>
+            <label class="field">
+              <span>Status</span>
+              <select id="customerStatus" name="customerStatus">
+                <option value="Aktif">Aktif</option>
+                <option value="Waspada">Waspada</option>
+              </select>
+            </label>
+            <label class="field full">
+              <span>Nama Pelanggan</span>
+              <input id="customerName" name="customerName" type="text" placeholder="Masukkan nama pelanggan" required />
+            </label>
+            <label class="field full">
+              <span>Alamat</span>
+              <textarea id="customerAddress" name="customerAddress" rows="3" placeholder="Alamat lengkap" required></textarea>
+            </label>
+            <label class="field">
+              <span>Telepon</span>
+              <input id="customerPhone" name="customerPhone" type="text" placeholder="0812-xxxx" required />
+            </label>
+            <label class="field">
+              <span>NPWP</span>
+              <input id="customerNwp" name="customerNwp" type="text" placeholder="00.000.000.0-000.000" />
+            </label>
+            <label class="field">
+              <span>Limit Kredit</span>
+              <input id="customerLimit" name="customerLimit" type="number" min="0" step="1000" value="100000000" required />
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn close-modal" data-close="customerModal">Batal</button>
+            <button type="submit" class="primary-btn">Simpan Pelanggan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="invoiceModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <span class="section-tag">Invoice</span>
+            <h3>Buat Invoice Baru</h3>
+          </div>
+          <button type="button" class="icon-btn close-modal" data-close="invoiceModal">×</button>
+        </div>
+
+        <form id="invoiceForm" class="modal-form">
+          <div class="form-grid">
+            <label class="field">
+              <span>Pelanggan</span>
+              <select id="invoiceCustomerId" name="invoiceCustomerId" required></select>
+            </label>
+            <label class="field">
+              <span>Invoice ke</span>
+              <input id="invoiceSequencePreview" name="invoiceSequencePreview" type="text" value="1" readonly />
+            </label>
+            <label class="field">
+              <span>No. Invoice</span>
+              <input id="invoiceNumber" name="invoiceNumber" type="text" placeholder="INV-1050" />
+            </label>
+            <label class="field">
+              <span>Tanggal Invoice</span>
+              <input id="invoiceDate" name="invoiceDate" type="date" required />
+            </label>
+            <label class="field">
+              <span>Termin Pembayaran</span>
+              <select id="invoiceTerm" name="invoiceTerm">
+                <option value="0">Cash / Tunai</option>
+                <option value="30">30 Hari</option>
+                <option value="45">45 Hari</option>
+                <option value="60">60 Hari</option>
+                <option value="90">90 Hari</option>
+                <option value="120">120 Hari</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Jatuh Tempo</span>
+              <input id="invoiceDueDate" name="invoiceDueDate" type="date" required />
+            </label>
+          </div>
+
+          <div class="invoice-items-box full-width">
+            <div class="invoice-items-header">
+              <h4>Detail Item Barang</h4>
+              <button type="button" id="addInvoiceItemBtn" class="secondary-btn small-btn">+ Tambah Item</button>
+            </div>
+            <div class="table-wrap compact-table">
+              <table class="items-table">
+                <thead>
+                  <tr>
+                    <th>Nama Item</th>
+                    <th>Qty</th>
+                    <th>Harga Satuan</th>
+                    <th>Subtotal</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="invoiceItemsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="form-grid total-box">
+            <label class="field">
+              <span>Ongkos Kirim</span>
+              <input id="shippingCost" name="shippingCost" type="number" min="0" step="1000" value="0" />
+            </label>
+            <label class="field full">
+              <span>Catatan</span>
+              <textarea id="invoiceNotes" name="invoiceNotes" rows="3" placeholder="Catatan penjualan / item utama"></textarea>
+            </label>
+            <div class="field full total-summary">
+              <span>Total Tagihan</span>
+              <strong id="invoiceTotalPreview">Rp 0</strong>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn close-modal" data-close="invoiceModal">Batal</button>
+            <button type="submit" class="primary-btn">Simpan Invoice</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      window.SUPABASE_CONFIG = {
+        supabaseUrl: 'https://upmbfawkextnjqtydqno.supabase.co',
+        supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwbWJmYXdrZXh0bmpxdHlkcW5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0NzYwOTcsImV4cCI6MjEwNjA1MjA5N30.5fpzDrdDNcTT23Rbm-qe1s0D4NcS-4zFtnN1s-YftdI'
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../backend/app.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
